@@ -13,6 +13,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -42,6 +43,7 @@ public class ApiLockConfiguration {
     public void init() {
         ApiLockServiceImpl apiLockService = new ApiLockServiceImpl();
         apiLockService.setRedisTemplate(redisTemplate);
+        apiLockService.setRetryTimes(apiLockProperties.getRetryTimes());
         this.apiLockService = apiLockService;
         prefix = apiLockProperties.getPrefix();
     }
@@ -52,6 +54,8 @@ public class ApiLockConfiguration {
         ApiLock apiLock = method.getAnnotation(ApiLock.class);
         String session = apiLock.session();
         String attribute = apiLock.attribute();
+        String module = StringUtils.isEmpty(apiLock.module())
+                ? method.getName() : apiLock.module();
 
         Object target = request.getAttribute(attribute);
 
@@ -59,7 +63,7 @@ public class ApiLockConfiguration {
         Expression expression = parser.parseExpression(session);
         String key = expression.getValue(target, String.class);
 
-        String lock = prefix + key;
+        String lock = prefix + module + key;
         try {
             apiLockService.tryLock(lock);
             return pjp.proceed();

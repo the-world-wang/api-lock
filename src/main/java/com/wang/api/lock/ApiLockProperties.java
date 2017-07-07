@@ -11,7 +11,8 @@ public class ApiLockProperties {
     private String type = "redis";
     private boolean enable;
     private int concurrency;
-    private String prefix = "api-lock";
+    private String prefix = "api-lock:";
+    private int retryTimes = 3;
 
     public String getType() {
         return type;
@@ -43,5 +44,13 @@ public class ApiLockProperties {
 
     public void setPrefix(String prefix) {
         this.prefix = prefix;
+    }
+
+    public int getRetryTimes() {
+        return retryTimes;
+    }
+
+    public void setRetryTimes(int retryTimes) {
+        this.retryTimes = retryTimes;
     }
 }

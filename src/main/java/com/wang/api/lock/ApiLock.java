@@ -19,4 +19,9 @@ public @interface ApiLock {
      * 在request里面对应attribute的名称
      */
     String attribute();
+
+    /**
+     * 模块名称
+     */
+    String module() default "";
 }

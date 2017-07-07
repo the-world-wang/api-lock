@@ -10,9 +10,14 @@ public class ApiLockServiceImpl implements ApiLockService {
     private static final String LOCK_VALUE = "lock";
 
     private StringRedisTemplate redisTemplate;
+    private int retryTimes = 3;
 
     public void setRedisTemplate(StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
+    }
+
+    public void setRetryTimes(int retryTimes) {
+        this.retryTimes = retryTimes;
     }
 
     @Override
@@ -26,7 +31,7 @@ public class ApiLockServiceImpl implements ApiLockService {
 
     @Override
     public void unlock(String key) {
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < retryTimes; i++) {
             if (delete(key)) break;
         }
     }
