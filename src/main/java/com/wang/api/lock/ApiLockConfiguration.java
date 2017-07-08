@@ -64,11 +64,17 @@ public class ApiLockConfiguration {
         String key = expression.getValue(target, String.class);
 
         String lock = prefix + module + key;
+        boolean busy = false;
         try {
             apiLockService.tryLock(lock);
             return pjp.proceed();
+        } catch (BusyException ex) {
+            busy = true;
+            throw ex;
         } finally {
-            apiLockService.unlock(lock);
+            if (!busy) {
+                apiLockService.unlock(lock);
+            }
         }
     }
 }
